@@ -1,0 +1,707 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Storytelling client · Commerce</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Lora:ital,wght@0,600;1,600&family=Source+Sans+3:wght@600;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --vert:#2C463A; --sauge:#7E8C7A; --kaki:#A6AE9E; --jaune:#C9A24A; --jaune-accent:#E2A150;
+  --terra:#B26845; --terra-ink:#8B4A2C;
+  --blanc:#FCFAF5; --creme:#F7F4ED; --moss:#EDF1EA;
+  --brun:#6E5648; --gris:#6A635A; --label:#4B5A46; --ink:#33302B; --line:#E7E1D6;
+  --alerte:#FCF6F0; --alerte-line:#EAD3C2; --sur-vert:#F4F1E7;
+  --ombre-1:0 1px 2px rgba(44,70,58,.10); --ombre-2:0 14px 46px rgba(47,79,62,.07);
+  --serif:'Lora', Georgia, serif; --texte:'Atkinson Hyperlegible', Verdana, sans-serif; --ui:'Source Sans 3', Arial, sans-serif;
+}
+* { box-sizing:border-box; margin:0; padding:0; }
+html { scrollbar-color: var(--sauge) var(--creme); }
+body { background:var(--blanc); color:var(--ink); font-family:var(--texte); font-size:17px; line-height:1.75; }
+::selection { background:var(--alerte-line); color:var(--ink); }
+:focus-visible { outline:2px solid var(--terra); outline-offset:3px; border-radius:8px; }
+a { color:var(--terra-ink); }
+
+.wrap { max-width:1040px; margin:0 auto; padding:0 24px; }
+
+/* EN-TÊTE */
+.top { border-bottom:1px solid var(--line); }
+.top .wrap { display:flex; justify-content:space-between; align-items:center; gap:16px; padding-top:18px; padding-bottom:18px; }
+.signature { font-family:var(--serif); font-weight:600; font-size:22px; color:var(--vert); letter-spacing:-.01em; }
+.signature span { color:var(--terra); }
+.top-meta { font-family:var(--ui); font-weight:600; font-size:14px; color:var(--gris); text-align:right; }
+
+.intro { padding:48px 0 28px; }
+.surtitre { display:flex; align-items:center; gap:12px; font-family:var(--ui); font-weight:900; font-size:12px; letter-spacing:.22em; text-transform:uppercase; color:var(--label); margin-bottom:14px; }
+.surtitre::before { content:""; width:28px; height:2px; background:var(--terra); flex-shrink:0; }
+h1 { font-family:var(--serif); font-weight:600; font-size:clamp(28px, 4.2vw, 40px); line-height:1.2; letter-spacing:-.01em; color:var(--vert); max-width:22ch; }
+.intro p.lead { margin-top:16px; max-width:62ch; color:var(--brun); }
+
+/* ONGLETS */
+.tabs { display:flex; gap:8px; overflow-x:auto; padding:4px 2px 12px; scrollbar-width:thin; }
+.tab { font-family:var(--ui); font-weight:600; font-size:15px; color:var(--vert); background:var(--blanc); border:1px solid var(--line); border-radius:999px; padding:10px 18px; cursor:pointer; white-space:nowrap; transition:background .15s, color .15s, border-color .15s; }
+.tab:hover { border-color:var(--sauge); }
+.tab[aria-selected="true"] { background:var(--vert); border-color:var(--vert); color:var(--sur-vert); }
+
+/* PANNEAU SECTEUR */
+.panel { padding:28px 0 64px; }
+.panel-head { margin-bottom:28px; }
+.panel-head h2 { font-family:var(--serif); font-weight:600; font-size:clamp(22px, 3vw, 28px); line-height:1.3; color:var(--ink); max-width:30ch; }
+
+.card { background:var(--creme); border-radius:16px; box-shadow:var(--ombre-1); padding:32px; }
+.card h3 { font-family:var(--serif); font-weight:600; font-size:22px; line-height:1.3; color:var(--vert); }
+.hint { margin-top:6px; color:var(--gris); font-size:16px; max-width:68ch; }
+.hint strong { color:var(--terra-ink); }
+
+.grid { display:grid; grid-template-columns:repeat(2, minmax(0,1fr)); gap:18px 20px; margin-top:26px; }
+.full { grid-column:1 / -1; }
+label { display:block; font-family:var(--ui); font-weight:600; font-size:14px; color:var(--label); margin-bottom:6px; }
+input, select, textarea { width:100%; font-family:var(--texte); font-size:16px; color:var(--ink); background:var(--blanc); border:1px solid var(--line); border-radius:8px; padding:11px 13px; }
+input::placeholder, textarea::placeholder { color:var(--gris); }
+textarea { resize:vertical; line-height:1.6; min-height:52px; }
+.zone { min-height:120px; max-width:68ch; }
+input:focus, select:focus, textarea:focus { outline:none; border-color:var(--terra); box-shadow:0 0 0 2px var(--alerte-line); }
+select { cursor:pointer; border-color:var(--sauge); }
+
+.actions { display:flex; align-items:center; gap:18px; flex-wrap:wrap; margin-top:26px; padding-top:22px; border-top:1px solid var(--line); }
+.btn { font-family:var(--ui); font-weight:600; font-size:16px; background:var(--vert); color:var(--sur-vert); border:none; border-radius:8px; padding:13px 26px; cursor:pointer; }
+.btn:hover { background:#243a30; }
+.status { font-family:var(--ui); font-weight:600; font-size:15px; color:var(--vert); }
+.status.err { color:var(--terra-ink); }
+
+/* RÉSULTAT */
+.result { margin-top:40px; }
+.objection { background:var(--vert); color:var(--sur-vert); border-radius:16px; padding:26px 32px; }
+.objection .cat { font-family:var(--ui); font-weight:900; font-size:12px; letter-spacing:.22em; text-transform:uppercase; color:var(--sur-vert); opacity:.85; margin-bottom:8px; }
+.objection .txt { font-family:var(--serif); font-style:italic; font-weight:600; font-size:clamp(19px, 2.4vw, 23px); line-height:1.45; max-width:48ch; }
+
+.steps { list-style:none; margin-top:12px; }
+.step { display:grid; grid-template-columns:56px minmax(0,1fr); gap:0 8px; padding:26px 0; border-bottom:1px solid var(--line); }
+.letter { font-family:var(--serif); font-weight:600; font-size:30px; line-height:1; color:var(--terra-ink); padding-top:2px; }
+.step-label { font-family:var(--ui); font-weight:900; font-size:12px; letter-spacing:.22em; text-transform:uppercase; color:var(--label); margin-bottom:8px; }
+.step-text { max-width:68ch; }
+.step-b { background:var(--moss); border-radius:16px; border-bottom:none; padding:26px 24px 26px 16px; margin:14px 0; }
+.step-b .letter { color:var(--vert); }
+.placeholder { color:var(--gris); font-style:italic; }
+.structure { margin-top:16px; padding-top:12px; border-top:1px solid var(--line); font-family:var(--ui); font-weight:600; font-size:14px; line-height:1.55; color:var(--label); max-width:72ch; }
+.reveal { animation:apparition .5s ease-out; }
+@keyframes apparition { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:none; } }
+
+.tip { margin-top:28px; background:var(--alerte); border:1px solid var(--alerte-line); border-left:2px solid var(--terra); border-radius:0 12px 12px 0; padding:16px 20px; font-size:16px; max-width:76ch; }
+.tip b { font-family:var(--ui); font-weight:900; font-size:12px; letter-spacing:.22em; text-transform:uppercase; color:var(--terra-ink); display:block; margin-bottom:4px; }
+.regle { margin-top:28px; font-family:var(--serif); font-weight:600; font-size:20px; line-height:1.45; color:var(--vert); max-width:48ch; }
+.regle small { display:block; font-family:var(--ui); font-weight:900; font-size:12px; letter-spacing:.22em; text-transform:uppercase; color:var(--label); margin-bottom:6px; }
+
+/* PIED DE PAGE */
+footer { border-top:1px solid var(--line); padding:26px 0 36px; font-family:var(--ui); font-weight:600; font-size:14px; line-height:1.6; color:var(--gris); }
+footer p + p { margin-top:6px; }
+
+@media (prefers-reduced-motion: reduce) { .reveal { animation:none; } .tab { transition:none; } }
+@media (max-width: 720px) {
+  .wrap { padding:0 16px; }
+  .intro { padding:32px 0 20px; }
+  .card { padding:20px 16px; }
+  .grid { grid-template-columns:1fr; gap:14px; }
+  .btn { width:100%; }
+  .objection { padding:20px; }
+  .step { grid-template-columns:36px minmax(0,1fr); padding:20px 0; }
+  .letter { font-size:24px; }
+  .step-b { padding:20px 14px 20px 10px; }
+  .top-meta { display:none; }
+  .tabs { flex-wrap:wrap; overflow-x:visible; }
+  .tab { padding:9px 14px; font-size:14px; }
+}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <div class="signature">Forma<span>So</span></div>
+    <div class="top-meta">Sophie Sirgue · Formation vente et relation client</div>
+  </div>
+</header>
+
+<main class="wrap">
+  <section class="intro">
+    <p class="surtitre">Storytelling client · Commerce</p>
+    <h1>Répondre à une objection en racontant l'histoire du client.</h1>
+    <p class="lead">Choisissez votre secteur, notez ce que le client vous a confié pendant la découverte, puis sélectionnez son objection. L'outil construit une histoire dont il est le seul héros&nbsp;: sa situation, son doute, puis sa vie avec la solution.</p>
+  </section>
+
+  <nav class="tabs" role="tablist" aria-label="Secteurs de vente" id="tabs"></nav>
+  <div id="panels"></div>
+</main>
+
+<footer>
+  <div class="wrap">
+    <p>FormaSo · Sophie Sirgue, formatrice indépendante certifiée IA (RS7138) · so.sirgue64@gmail.com</p>
+    <p>SIRET 877 675 850 00011 · NDA 756 405 68 964 · Aucune donnée n'est enregistrée : les saisies restent dans votre navigateur et disparaissent à la fermeture de la page.</p>
+  </div>
+</footer>
+
+<script>
+/* ---------- Outils ---------- */
+function esc(v) { return String(v).replace(/[&<>"']/g, function(c) { return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+// Typographie française : espace insécable avant : ; ? ! » et après «
+function nb(t) { return String(t).replace(/ ([:;?!»])/g, '\u00A0$1').replace(/« /g, '«\u00A0'); }
+function q(v) { return '“' + esc(v) + '”'; }
+// ins : insère la saisie du client (entre parenthèses ou guillemets) si elle existe, sinon texte de repli
+function ins(v, tpl, alt) { if (!v) return alt || ''; return tpl.indexOf('({})') > -1 ? tpl.replace('({})', '(' + esc(v) + ')') : tpl.replace('{}', q(v)); }
+
+var COMMON_BRIDGE = { priorite: "de ce qui compte le plus pour vous", situation: "de votre situation" };
+var COMMON_FIELDS = {
+  priorite: { label: "Priorité exprimée" },
+  situation: { label: "Situation / contexte" }
+};
+
+/* ---------- Données ---------- */
+var SECTORS = [
+{
+  id: "tel", name: "Téléphonie mobile",
+  title: "Le client n'achète pas un téléphone, il achète ses journées avec.",
+  autrePh: "Ex : Je préfère attendre la sortie du prochain modèle.",
+  scene: function(p) { return "imaginez votre journée avec votre téléphone" + ins(p.usage, " ({})", "") + ""; },
+  fields: [
+    { k: "usage", label: "Usage principal", ph: "Ex : photos, réseaux sociaux, appels pro", bridge: "de votre usage" },
+    { k: "actuel", label: "Téléphone / forfait actuel", ph: "Ex : modèle de 4 ans, forfait 20 Go", bridge: "de votre équipement actuel" },
+    { k: "budget", label: "Budget indiqué", ph: "Ex : 300 € maximum, paiement en 4 fois", bridge: "de votre budget" },
+    { k: "priorite", ph: "Ex : batterie, photo, simplicité" },
+    { k: "situation", ph: "Ex : écran cassé, premier smartphone" }
+  ],
+  objections: [
+    { cat: "Prix — Trop cher",
+      text: "C'est beaucoup trop cher pour un téléphone. Je ne vais pas mettre autant d'argent là-dedans.",
+      accueil: "« Vous avez raison de regarder le prix de près : c'est un objet que vous allez utiliser tous les jours, pendant plusieurs années. Regardons ce qu'il représente vraiment pour vous. »",
+      story: function(p, b) {
+        return "« " + b(['usage','budget','priorite']) + "Aujourd'hui, vous voyez un prix affiché. Projetons-nous plutôt sur les années où vous allez le garder. " + ins(p.usage, "Chaque jour, vous l'utilisez pour {} : ", "Chaque jour, vous le sortez de votre poche des dizaines de fois : ") + "il démarre vite, la batterie tient jusqu'au soir, il reste à jour longtemps. Ramené à la journée, le prix change complètement de visage. <strong>Faisons ce calcul ensemble" + ins(p.budget, ", avec votre budget ({})", "") + "</strong> — et si un modèle moins cher répond à votre usage, je vous le montrerai aussi. »";
+      },
+      message: "« Un téléphone se juge sur son coût par jour d'utilisation, pas sur son prix affiché. Et la reprise de votre ancien appareil ou le paiement en plusieurs fois peuvent changer l'équation. »",
+      relance: "« Combien de temps gardez-vous généralement votre téléphone ? Et votre appareil actuel, seriez-vous prêt à le faire reprendre ? »",
+      tip: "Maîtriser les offres de reprise, de paiement fractionné et la durée de suivi logiciel annoncée par chaque constructeur (à vérifier sur la fiche produit). Toujours proposer une option dans le budget exprimé.",
+      regle: "Raisonner en coût d'usage, et toujours montrer une option dans le budget du client." },
+    { cat: "Concurrence — Achat en ligne",
+      text: "Je vais le commander sur Internet, c'est moins cher.",
+      accueil: "« C'est logique de comparer, et Internet est souvent le premier réflexe. Voyons ensemble ce que vous achetez vraiment dans les deux cas. »",
+      story: function(p, b) {
+        return "« " + b(['actuel','situation','priorite']) + "Imaginez les deux scénarios. Sur Internet, vous attendez le colis, puis vous passez la soirée à transférer vos photos, vos contacts, vos applications. En cas de souci, vous renvoyez le téléphone et vous attendez encore. Ici, vous repartez aujourd'hui avec un téléphone prêt à l'emploi : vos données transférées, votre protection d'écran posée, " + ins(p.situation, "votre situation ({}) prise en charge sur place. ", "et une personne à qui vous adresser en cas de question. ") + "<strong>Comparons les deux prix, services compris</strong>, et c'est vous qui choisirez. »";
+      },
+      message: "« Le prix en ligne ne comprend ni le transfert de vos données, ni la mise en service, ni l'interlocuteur en cas de problème. À services égaux, l'écart est souvent plus faible qu'il n'y paraît. »",
+      relance: "« Vous avez vu ce prix sur quel site ? On le pose à côté de notre offre, services compris. »",
+      tip: "Connaître les prix en ligne des modèles phares et savoir chiffrer la valeur des services (transfert, pose de protection, SAV de proximité). Ne jamais dénigrer la vente en ligne.",
+      regle: "Comparer une offre complète à une offre complète, jamais un prix à un prix." },
+    { cat: "Besoin — Statu quo",
+      text: "Je n'en ai pas besoin, mon téléphone actuel marche encore.",
+      accueil: "« C'est une très bonne raison de ne pas se précipiter. Garder un appareil qui fonctionne, c'est du bon sens. »",
+      story: function(p, b) {
+        return "« " + b(['actuel','usage','situation']) + "Votre téléphone fonctionne, oui. Mais regardons votre journée avec lui : " + ins(p.usage, "quand vous l'utilisez pour {}, ", "quand vous en avez vraiment besoin, ") + "est-ce qu'il suit ? La batterie tient-elle jusqu'au soir ? La mémoire est-elle pleine ? Les applications ralentissent-elles ? Imaginez la même journée sans chercher une prise ni supprimer des photos. Et si votre téléphone vous suffit, je vous le dirai et vous repartirez avec. <strong>On fait le point sur votre appareil, deux minutes ?</strong> »";
+      },
+      message: "« Changer de téléphone n'est pas une obligation. La vraie question : votre appareil répond-il encore à votre usage, sans vous faire perdre de temps ? »",
+      relance: "« Qu'est-ce qui vous agace le plus aujourd'hui avec votre téléphone ? S'il n'y a rien, on en reste là. »",
+      tip: "Proposer un diagnostic rapide (état de la batterie, stockage, version du système). Accepter que la meilleure réponse soit parfois « gardez-le » : la confiance crée la vente suivante.",
+      regle: "Partir des irritants du client, jamais de la nouveauté du produit." },
+    { cat: "Forfait — Changement d'opérateur",
+      text: "Je ne veux pas changer d'opérateur, c'est trop compliqué.",
+      accueil: "« Je comprends, personne n'a envie de passer des heures au téléphone avec un service client. Regardons ce que ça demande vraiment. »",
+      story: function(p, b) {
+        return "« " + b(['actuel','budget','priorite']) + "Imaginez : vous obtenez votre code de portabilité en appelant le 3179 depuis votre mobile, vous me le donnez, et je m'occupe du reste. Vous gardez votre numéro, votre ancien contrat est résilié automatiquement, sans courrier ni démarche de votre côté. " + ins(p.budget, "Chaque mois, votre facture correspond enfin à votre budget ({}). ", "") + "<strong>Voyons ensemble combien de temps ça vous prendrait vraiment : moins que cette conversation.</strong> »";
+      },
+      message: "« Avec la portabilité, vous gardez votre numéro et la résiliation de l'ancien contrat est automatique. Le seul point à vérifier, c'est une éventuelle période d'engagement en cours. »",
+      relance: "« Êtes-vous encore engagé chez votre opérateur actuel ? Si ce n'est pas le cas, on peut tout faire aujourd'hui. »",
+      tip: "Maîtriser la procédure de portabilité (code RIO obtenu au 3179) et savoir vérifier les frais de résiliation anticipée éventuels. Ne jamais minimiser un engagement en cours.",
+      regle: "Rendre la démarche visible et courte : la complexité imaginée fait plus peur que la réelle." },
+    { cat: "Services — Assurance",
+      text: "L'assurance téléphone, c'est de l'arnaque, je n'en veux pas.",
+      accueil: "« Vous avez raison de vous méfier : une assurance ne vaut que par ce qu'elle couvre vraiment. Je ne vais pas vous la vendre à tout prix. »",
+      story: function(p, b) {
+        return "« " + b(['usage','situation','priorite']) + "Imaginez un matin : le téléphone glisse de votre poche et l'écran se fend. " + ins(p.usage, "Tout ce que vous faites avec ({}) s'arrête d'un coup. ", "Tout ce que vous faites avec s'arrête d'un coup. ") + "À ce moment-là, deux situations : soit vous payez la réparation, soit vous êtes couvert. Aucune des deux n'est la bonne pour tout le monde. <strong>Lisons ensemble ce que couvre le contrat, franchise comprise</strong>, et vous déciderez selon votre usage. »";
+      },
+      message: "« Une assurance se décide sur trois points : ce qu'elle couvre, la franchise et le prix mensuel. Si le calcul n'est pas en votre faveur, ne la prenez pas. »",
+      relance: "« Vous est-il déjà arrivé de casser ou de perdre un téléphone ? Savez-vous combien coûte une réparation d'écran sur ce modèle ? »",
+      tip: "Connaître les exclusions, la franchise et les conditions de renonciation du contrat proposé, ainsi que le coût réel d'une réparation d'écran sur les modèles vendus.",
+      regle: "Présenter l'assurance comme un choix éclairé, jamais comme un réflexe." },
+    { cat: "Décision — Report",
+      text: "Je vais réfléchir, je repasserai.",
+      accueil: "« Bien sûr, c'est un achat qui compte. Pour que vous réfléchissiez avec toutes les cartes en main, puis-je vous poser une dernière question ? »",
+      story: function(p, b) {
+        return "« " + b(['usage','budget','priorite']) + "Imaginez-vous ce soir, chez vous, en train d'y repenser. Qu'est-ce qui vous ferait encore hésiter ? " + ins(p.priorite, "Si votre doute porte sur ce qui compte le plus pour vous ({}), ", "Si c'est le prix, la batterie ou un doute sur le modèle, ") + "c'est maintenant qu'on peut y répondre, ensemble. Et si vous repartez sans acheter, vous repartirez avec un récapitulatif clair de ce qu'on a vu. <strong>Qu'est-ce qui vous retient encore, précisément ?</strong> »";
+      },
+      message: "« Réfléchir, c'est sain. Mais on réfléchit mieux avec une réponse précise à son dernier doute. »",
+      relance: "« Sur une échelle de 1 à 10, où en êtes-vous ? Et qu'est-ce qui manquerait pour passer à 10 ? »",
+      tip: "Ne jamais forcer la décision. Identifier l'objection cachée derrière le report, puis remettre un récapitulatif écrit (modèle, prix, services) si le client part sans acheter.",
+      regle: "Derrière « je vais réfléchir », il y a presque toujours un doute non dit : le chercher avec respect." }
+  ]
+},
+{
+  id: "loc", name: "Location de véhicules",
+  title: "Le client ne loue pas un véhicule, il prépare un départ.",
+  autrePh: "Ex : Je n'ai pas confiance dans l'état de vos véhicules.",
+  scene: function(p) { return "imaginez le jour du départ" + ins(p.motif, " ({})", "") + ""; },
+  fields: [
+    { k: "motif", label: "Motif de la location", ph: "Ex : week-end en famille, déménagement, usage professionnel", bridge: "du motif de votre location" },
+    { k: "trajet", label: "Trajet / durée", ph: "Ex : Bayonne–Toulouse, 5 jours", bridge: "de votre trajet" },
+    { k: "passagers", label: "Passagers et bagages", ph: "Ex : 2 adultes, 2 enfants, 4 valises", bridge: "de vos passagers et bagages" },
+    { k: "priorite", ph: "Ex : confort, budget, simplicité" },
+    { k: "situation", ph: "Ex : voiture au garage, premier départ à l'étranger" }
+  ],
+  objections: [
+    { cat: "Options — Assurance",
+      text: "L'assurance complémentaire, je n'en ai pas besoin, ma carte bancaire me couvre.",
+      accueil: "« C'est une bonne réflexion : certaines cartes bancaires couvrent effectivement la location. Vérifions ensemble ce que la vôtre prend en charge. »",
+      story: function(p, b) {
+        return "« " + b(['motif','trajet','priorite']) + "Imaginez : " + ins(p.trajet, "sur votre trajet ({}), ", "pendant la location, ") + "une rayure sur une portière, un rétroviseur accroché sur un parking. Au retour du véhicule, soit tout est déjà réglé, soit vous avancez la franchise et vous faites vous-même les démarches auprès de votre banque. Les deux options se valent selon les situations : l'important est de savoir laquelle est la vôtre avant de partir. <strong>Regardons ensemble les conditions de votre carte et le montant de la franchise.</strong> »";
+      },
+      message: "« Les garanties des cartes bancaires varient beaucoup : plafonds, exclusions, avance de frais. L'option de réduction de franchise, elle, vous évite l'avance et les démarches. »",
+      relance: "« Connaissez-vous le plafond et les exclusions de votre carte ? On peut les vérifier ensemble maintenant. »",
+      tip: "Connaître le montant exact de la franchise, ce que couvrent les options et les exclusions courantes des cartes bancaires. Ne jamais affirmer qu'une carte ne couvre rien.",
+      regle: "Informer pour faire choisir, jamais faire peur pour faire acheter." },
+    { cat: "Prix — Comparaison en ligne",
+      text: "C'est plus cher que ce que j'ai vu en ligne.",
+      accueil: "« Vous avez bien fait de comparer. Regardons ce qui est compris dans chaque tarif, ligne par ligne. »",
+      story: function(p, b) {
+        return "« " + b(['motif','trajet','passagers']) + "Imaginez le jour du départ" + ins(p.motif, " ({})", "") + ". Avec certains tarifs vus en ligne, c'est au comptoir que l'on découvre le kilométrage limité, la caution, le conducteur supplémentaire. Ici, on pose tout sur la table maintenant : kilométrage, franchise, carburant, options. Vous partez en sachant exactement ce que vous paierez au retour. <strong>Comparons les deux offres à conditions identiques.</strong> »";
+      },
+      message: "« Un tarif de location se compare à conditions identiques : kilométrage, franchise, dépôt de garantie, conducteur additionnel, politique carburant. »",
+      relance: "« Avez-vous l'offre en ligne sous les yeux ? On la compare ligne par ligne. »",
+      tip: "Savoir détailler chaque composante du prix et connaître les pratiques de la concurrence locale. La transparence totale désarme la méfiance.",
+      regle: "Comparer ce qui est comparable, et tout dire avant le départ." },
+    { cat: "Conditions — Dépôt de garantie",
+      text: "La caution est trop élevée, je ne veux pas bloquer autant sur ma carte.",
+      accueil: "« Je comprends, bloquer une somme sur sa carte pendant un déplacement, ce n'est pas agréable. Voyons les solutions possibles. »",
+      story: function(p, b) {
+        return "« " + b(['motif','situation','priorite']) + "Imaginez votre location telle qu'elle se passerait : une empreinte bancaire est prise au départ, elle n'est pas débitée, et elle est libérée au retour du véhicule. Si notre offre le permet, une option peut réduire ce montant, pour laisser de la marge à votre budget" + ins(p.motif, " pendant votre location ({})", "") + ". <strong>Regardons ensemble la formule qui vous laisse le plus serein.</strong> »";
+      },
+      message: "« Le dépôt de garantie est une empreinte, pas un débit. Il est libéré au retour, et son montant peut parfois être réduit avec une option. »",
+      relance: "« Quel montant pourriez-vous immobiliser sans gêne ? On part de ce chiffre. »",
+      tip: "Connaître précisément le montant de la caution, le délai habituel de libération de l'empreinte et les options qui la réduisent. Expliquer la différence entre empreinte et débit.",
+      regle: "Expliquer le mécanisme avant de défendre le montant." },
+    { cat: "Véhicule — Taille et catégorie",
+      text: "Le véhicule proposé est trop petit pour nous.",
+      accueil: "« Merci de me le dire maintenant, c'est exactement le bon moment. Partir à l'étroit gâcherait votre location. »",
+      story: function(p, b) {
+        return "« " + b(['passagers','motif','trajet']) + "Projetons-nous au moment du chargement. " + ins(p.passagers, "Avec {}, ", "Avec vos passagers et vos bagages, ") + "vous ouvrez le coffre : tout rentre-t-il sans poser de sac sur les genoux ? " + ins(p.trajet, "Et sur votre trajet ({}), ", "Et sur la route, ") + "tout le monde est-il à l'aise ? Si ce n'est pas le cas, on regarde la catégorie au-dessus, avec la différence de prix exacte, et vous décidez. <strong>Listons ce que vous emportez, et je vous montre le véhicule adapté.</strong> »";
+      },
+      message: "« Le bon véhicule accueille vos passagers et vos bagages sans compromis. Monter d'une catégorie se chiffre précisément avant le départ. »",
+      relance: "« Combien de personnes et de valises, exactement ? Un équipement particulier, comme un siège enfant ou un porte-vélos ? »",
+      tip: "Connaître les volumes de coffre et les capacités de chaque catégorie de la flotte. Proposer le surclassement avec son prix exact, jamais par défaut.",
+      regle: "Dimensionner à partir des bagages réels, pas de la catégorie réservée." },
+    { cat: "Alternative — Véhicule personnel",
+      text: "Je vais plutôt prendre ma voiture, ça me coûtera moins cher.",
+      accueil: "« C'est souvent vrai sur le papier, et c'est une vraie option. Regardons ce qu'elle vous coûte vraiment. »",
+      story: function(p, b) {
+        return "« " + b(['trajet','motif','situation']) + "Imaginez les deux départs. Avec votre voiture" + ins(p.trajet, ", sur votre trajet ({})", "") + ", vous ajoutez des kilomètres, de l'usure, un entretien qui arrivera plus tôt. Avec une location, vous partez dans un véhicule entretenu et adapté à ce que vous transportez, puis vous le rendez. Aucun des deux n'est le bon choix pour tout le monde. <strong>Comparons les deux coûts, kilomètres compris</strong>, et vous trancherez. »";
+      },
+      message: "« Utiliser sa voiture a aussi un coût : usure, entretien, kilomètres. La location se compare à ce coût réel, pas seulement au prix du carburant. »",
+      relance: "« Quel âge a votre voiture, et combien de kilomètres ? Pour ce trajet, est-elle vraiment adaptée ? »",
+      tip: "Savoir estimer simplement le coût kilométrique d'un véhicule personnel (le barème kilométrique fiscal peut servir de repère). Rester neutre : parfois, la voiture personnelle est la bonne réponse.",
+      regle: "Comparer des coûts complets, et accepter que la réponse ne soit pas toujours la location." },
+    { cat: "Décision — Report",
+      text: "Je vais réfléchir, je réserverai plus tard.",
+      accueil: "« Bien sûr. Pour que vous décidiez sereinement, je vous donne toutes les informations utiles. »",
+      story: function(p, b) {
+        return "« " + b(['motif','trajet','priorite']) + "Imaginez que vous reveniez dans quelques jours" + ins(p.motif, " pour votre location ({})", "") + ". Selon la période, le véhicule qui vous convient peut ne plus être disponible, ou le tarif avoir changé. Si vous réservez maintenant avec des conditions d'annulation claires, vous gardez la main : le véhicule vous attend, et vous pouvez encore changer d'avis. <strong>Regardons ensemble les conditions d'annulation avant que vous décidiez.</strong> »";
+      },
+      message: "« Les disponibilités et les tarifs évoluent selon la demande. Réserver avec des conditions d'annulation connues, c'est garder sa liberté sans prendre de risque. »",
+      relance: "« Qu'est-ce qui vous fait encore hésiter : les dates, le véhicule, le prix ? »",
+      tip: "Connaître précisément les conditions d'annulation et de modification. Ne jamais inventer une rareté : n'évoquer la disponibilité que si elle est réelle.",
+      regle: "Créer de la sécurité, jamais une fausse urgence." }
+  ]
+},
+{
+  id: "alim", name: "Supérette alimentaire",
+  title: "Le client n'entre pas pour faire ses courses, il entre pour se simplifier la journée.",
+  autrePh: "Ex : Vos horaires ne m'arrangent pas.",
+  scene: function(p) { return "imaginez votre prochain passage au magasin" + ins(p.motif, " ({})", ""); },
+  fields: [
+    { k: "motif", label: "Motif du passage", ph: "Ex : dépannage, courses du soir, pause déjeuner", bridge: "du motif de votre passage" },
+    { k: "foyer", label: "Foyer", ph: "Ex : seul, en couple, famille de 4", bridge: "de votre foyer" },
+    { k: "habitudes", label: "Habitudes de courses", ph: "Ex : grande surface le samedi, passe tous les jours", bridge: "de vos habitudes de courses" },
+    { k: "priorite", ph: "Ex : rapidité, prix, produits frais" },
+    { k: "situation", ph: "Ex : sans voiture, sortie du travail, en vacances" }
+  ],
+  objections: [
+    { cat: "Prix — Comparaison grande surface",
+      text: "C'est plus cher qu'en grande surface.",
+      accueil: "« C'est vrai sur certains produits, et vous avez raison de le remarquer. Regardons ce que vous gagnez à faire ces courses-là ici. »",
+      story: function(p, b) {
+        return "« " + b(['motif','habitudes','priorite']) + "Imaginez votre soirée" + ins(p.motif, " ({})", "") + ". Vous passez ici en rentrant, en cinq minutes vous avez ce qu'il vous faut, et vous êtes chez vous. Pas de voiture à sortir, pas de parking, pas de longue file d'attente, pas d'achats en trop parce qu'on s'est perdu dans les rayons. La différence de prix, vous la regagnez en temps et en tentations évitées. " + ins(p.habitudes, "Et pour vos grosses courses ({}), rien ne vous empêche de garder vos habitudes. ", "") + "<strong>Pour vos achats du quotidien, qu'est-ce qui vous ferait gagner le plus de temps ?</strong> »";
+      },
+      message: "« La proximité a un prix, mais elle vous rend du temps et vous évite des déplacements et des achats inutiles. Et je peux vous montrer nos produits les plus abordables. »",
+      relance: "« Qu'est-ce que vous venez chercher le plus souvent ? Je vous montre les options les plus avantageuses sur ces produits-là. »",
+      tip: "Connaître les promotions en cours et les produits les plus abordables du magasin. Ne jamais nier l'écart de prix : le reconnaître, puis mettre en avant le temps gagné et la proximité.",
+      regle: "Reconnaître l'écart de prix, puis vendre le temps gagné." },
+    { cat: "Offre — Choix limité",
+      text: "Il n'y a pas beaucoup de choix chez vous.",
+      accueil: "« Vous avez raison, nos rayons sont plus petits qu'en grande surface. Dites-moi ce que vous cherchiez, je vais voir ce que je peux faire. »",
+      story: function(p, b) {
+        return "« " + b(['motif','foyer','habitudes']) + "Imaginez votre prochain passage" + ins(p.motif, " ({})", "") + " : vous entrez, vous allez droit au bon rayon, et ce que vous achetez régulièrement est là, parce que vous nous l'avez signalé. Moins de choix, c'est aussi moins de temps à hésiter devant des dizaines de références. Et si un produit vous manque, on regarde s'il est possible de le commander ou de le faire entrer en rayon. <strong>Quel produit vous a manqué aujourd'hui ?</strong> »";
+      },
+      message: "« Notre assortiment est resserré sur l'essentiel du quotidien, et vos demandes nous aident à l'ajuster. »",
+      relance: "« Qu'auriez-vous aimé trouver ? Je le note et je vous dis si on peut l'avoir. »",
+      tip: "Connaître l'assortiment et les possibilités de commande ou de référencement. Noter les demandes des clients et les faire remonter : c'est une source de fidélisation.",
+      regle: "Transformer un produit manquant en demande notée, jamais en « on n'en a pas »." },
+    { cat: "Qualité — Fraîcheur",
+      text: "Vos fruits et légumes, je ne suis pas sûr qu'ils soient bien frais.",
+      accueil: "« C'est une bonne question, et vous avez raison d'être attentif à la fraîcheur. Je vais vous répondre précisément. »",
+      story: function(p, b) {
+        return "« " + b(['foyer','priorite','habitudes']) + "Imaginez que vous sachiez exactement quand les produits frais arrivent au magasin. Vous passez ces jours-là, vous choisissez, et vous cuisinez " + ins(p.foyer, "pour votre foyer ({}) ", "") + "des produits que vous avez vus et choisis vous-même. Je vous montre l'étiquette, l'origine, et je vous dis quand arrive la prochaine livraison. <strong>Voulez-vous que je vous indique les jours d'arrivage ?</strong> »";
+      },
+      message: "« Je peux vous indiquer les jours d'arrivage et l'origine de chaque produit frais. Et si un produit n'est pas à la hauteur, je le retire du rayon. »",
+      relance: "« Quels produits frais achetez-vous le plus souvent ? Je vous dis quand ils arrivent. »",
+      tip: "Connaître les jours de livraison, la rotation des produits frais et les règles de retrait des produits abîmés. Retirer immédiatement un produit défraîchi signalé par un client, et le remercier.",
+      regle: "Prouver la fraîcheur par des faits : origine, jour d'arrivage, état du rayon." },
+    { cat: "Vente additionnelle — Achat unique",
+      text: "Je viens juste pour le pain, je n'ai besoin de rien d'autre.",
+      accueil: "« Très bien, je ne vais pas vous retenir. Juste une question rapide, si vous le permettez. »",
+      story: function(p, b) {
+        return "« " + b(['motif','foyer','situation']) + "Imaginez ce soir, au moment de passer à table" + ins(p.foyer, " ({})", "") + ". Vous avez votre pain, et vous vous rendez compte qu'il manque le beurre, le fromage ou le lait du petit-déjeuner. Ressortir, c'est du temps perdu. Si quelque chose manque à la maison, c'est maintenant qu'on peut l'éviter. <strong>Il ne vous manque rien pour ce soir ou pour demain matin ?</strong> »";
+      },
+      message: "« Je ne vous propose rien d'inutile : je vérifie simplement qu'il ne vous manque rien pour votre prochain repas. »",
+      relance: "« Et pour demain matin, vous avez tout ce qu'il faut ? »",
+      tip: "Proposer un seul produit complémentaire, cohérent avec l'achat (pain : beurre, fromage, confiture). Accepter le « non » avec le sourire : l'insistance fait fuir le client de proximité.",
+      regle: "Une seule suggestion utile, jamais une liste." },
+    { cat: "Usage — Manque de temps",
+      text: "Je n'ai pas le temps de cuisiner, je vais encore prendre un plat tout prêt.",
+      accueil: "« Je vous comprends, le temps en semaine est souvent ce qui manque le plus. Voyons ce qui est possible en quelques minutes. »",
+      story: function(p, b) {
+        return "« " + b(['situation','foyer','priorite']) + "Imaginez un soir de semaine : vous rentrez" + ins(p.situation, " ({})", "") + ", et vous avez peu de temps. Avec deux ou trois produits pris ici, je vous donne une préparation simple, prête en quelques minutes. " + ins(p.foyer, "Vous servez un vrai repas ({}) ", "Vous servez un vrai repas ") + "sans passer la soirée en cuisine. <strong>Je vous montre les trois produits qu'il vous faut ?</strong> »";
+      },
+      message: "« Un repas rapide peut aussi être fait maison : quelques produits bien choisis et une préparation simple suffisent. »",
+      relance: "« Combien de temps avez-vous, en général, pour préparer le repas du soir ? »",
+      tip: "Avoir en tête trois ou quatre idées de repas express réalisables avec les produits du magasin, et savoir où se trouve chaque ingrédient.",
+      regle: "Vendre une solution pour sa soirée, pas un produit." },
+    { cat: "Fidélité — Carte de fidélité",
+      text: "La carte de fidélité, non merci, je ne viens pas assez souvent.",
+      accueil: "« Pas de souci, je ne vais pas insister. Je vous dis en deux mots ce qu'elle apporte, et vous déciderez. »",
+      story: function(p, b) {
+        return "« " + b(['habitudes','motif','priorite']) + "Imaginez vos passages sur un mois" + ins(p.habitudes, " ({})", "") + " : un dépannage par-ci, le pain par-là. Mis bout à bout, ces petits achats comptent, et la carte les transforme en avantages sans rien changer à vos habitudes. Si vous passez vraiment trop rarement, elle ne vous servira pas, et je vous le dirai. <strong>Combien de fois passez-vous ici dans un mois, à peu près ?</strong> »";
+      },
+      message: "« La carte récompense les petits achats répétés. Elle est utile si vous passez régulièrement, même pour peu de chose. »",
+      relance: "« Vous passez plutôt une fois par semaine, ou plus souvent ? »",
+      tip: "Connaître précisément les avantages de la carte et l'information RGPD à donner sur les données collectées. Ne jamais insister après un refus.",
+      regle: "Proposer une fois, expliquer clairement, respecter le refus." }
+  ]
+},
+{
+  id: "rando", name: "Randonnée",
+  title: "Le client n'achète pas du matériel, il prépare sa prochaine sortie.",
+  autrePh: "Ex : Je vais emprunter le matériel d'un ami.",
+  scene: function(p) { return "imaginez votre prochaine sortie" + ins(p.pratique, " ({})", "") + ""; },
+  fields: [
+    { k: "pratique", label: "Type de pratique", ph: "Ex : balades d'une journée, trek", bridge: "de votre pratique" },
+    { k: "terrain", label: "Terrain / saison", ph: "Ex : Pyrénées, montagne en été", bridge: "du terrain et de la saison" },
+    { k: "equipement", label: "Équipement actuel", ph: "Ex : baskets, sac de ville", bridge: "de votre équipement actuel" },
+    { k: "priorite", ph: "Ex : légèreté, confort, budget" },
+    { k: "situation", ph: "Ex : première randonnée de plusieurs jours" }
+  ],
+  objections: [
+    { cat: "Prix — Fréquence d'usage",
+      text: "Ces chaussures sont trop chères pour quelques sorties par an.",
+      accueil: "« C'est une question de bon sens : pourquoi investir pour quelques sorties ? Regardons ce que ces sorties vous demandent. »",
+      story: function(p, b) {
+        return "« " + b(['pratique','terrain','situation']) + "Imaginez votre prochaine sortie" + ins(p.pratique, " ({})", "") + ". " + ins(p.terrain, "Sur ce terrain ({}), ", "Sur le terrain, ") + "au bout de plusieurs heures de marche, vos pieds sont secs, maintenus, sans ampoule. Vous profitez du paysage au lieu de compter les kilomètres. Et si un modèle plus simple suffit pour votre pratique, je vous le montrerai. <strong>On essaie les deux, avec des chaussettes de marche ?</strong> »";
+      },
+      message: "« Une chaussure se choisit selon le terrain et la durée de marche, pas selon le nombre de sorties. Une seule sortie gâchée par des ampoules coûte cher en plaisir. »",
+      relance: "« Combien de temps durent vos sorties, et sur quel type de terrain ? »",
+      tip: "Savoir faire essayer correctement (chaussettes de randonnée, plan incliné si le magasin en dispose). Toujours proposer une option adaptée au budget et à la pratique réelle.",
+      regle: "Équiper pour la pratique réelle du client, ni plus, ni moins." },
+    { cat: "Concurrence — Achat en ligne",
+      text: "Je vais trouver la même chose sur Internet.",
+      accueil: "« C'est possible, et comparer est normal. Mais un équipement de randonnée, surtout une chaussure ou un sac, ça s'essaie. »",
+      story: function(p, b) {
+        return "« " + b(['pratique','equipement','priorite']) + "Imaginez les deux cas. En ligne, vous choisissez une pointure, vous attendez, vous essayez chez vous sur un sol plat, et c'est sur le sentier que vous découvrez ce qui frotte. Ici, vous essayez maintenant, en conditions proches de la marche, et on règle ensemble le laçage et les sangles. Vous partez avec un équipement réglé pour vous. <strong>Faisons l'essai complet, et vous comparerez ensuite en connaissance de cause.</strong> »";
+      },
+      message: "« Le prix en ligne ne comprend ni l'essai, ni le réglage, ni le conseil adapté à votre terrain. »",
+      relance: "« Avez-vous un modèle précis en tête ? Essayons-le ici, avec une alternative à côté. »",
+      tip: "Mettre en avant ce que le magasin apporte réellement : essai, réglage, conseil terrain, retour simplifié. Ne jamais dénigrer la vente en ligne.",
+      regle: "Vendre l'essai et le réglage, pas seulement le produit." },
+    { cat: "Besoin — Sur-équipement",
+      text: "Je n'ai pas besoin de tout ça, je fais juste des petites balades.",
+      accueil: "« Et vous avez raison de ne pas vouloir vous suréquiper. On va partir de vos balades, et seulement d'elles. »",
+      story: function(p, b) {
+        return "« " + b(['pratique','terrain','equipement']) + "Imaginez votre balade habituelle" + ins(p.pratique, " ({})", "") + ". Qu'est-ce qui vous a déjà gêné ? Des pieds mouillés, une averse sans veste, une bouteille qui pèse dans la main ? On règle uniquement ces points-là, rien d'autre. Vous repartez avec l'essentiel, pas avec un catalogue. <strong>Qu'est-ce qui vous a le plus gêné lors de votre dernière sortie ?</strong> »";
+      },
+      message: "« Pour de petites balades, quelques équipements bien choisis suffisent. On part de ce qui vous a déjà gêné. »",
+      relance: "« Et si la balade s'allonge ou que la météo change, qu'est-ce qui vous manquerait ? »",
+      tip: "Construire l'équipement à partir des gênes vécues par le client. Refuser de vendre un équipement technique inutile : la crédibilité se construit là.",
+      regle: "Partir des gênes vécues, pas de la fiche technique." },
+    { cat: "Produit — Confort du sac",
+      text: "Ce sac a l'air trop lourd et trop grand pour moi.",
+      accueil: "« Vous avez raison, un sac mal adapté gâche une randonnée. Voyons ensemble s'il est fait pour vous. »",
+      story: function(p, b) {
+        return "« " + b(['pratique','equipement','priorite']) + "Imaginez-vous au bout de trois heures de marche" + ins(p.pratique, " ({})", "") + ". Avec un sac réglé à votre dos, l'essentiel du poids repose sur les hanches, pas sur les épaules. Vous marchez droit, sans douleur. Et si ce volume est trop grand pour votre pratique, on descend d'une taille. <strong>On le charge et on le règle sur vous, maintenant ?</strong> »";
+      },
+      message: "« Un sac se juge chargé et réglé : longueur de dos, ceinture, sangles. Le volume se choisit selon la durée de vos sorties. »",
+      relance: "« Vos sorties durent une journée ou plusieurs jours ? Que portez-vous, en général ? »",
+      tip: "Maîtriser la mesure de la longueur de dos et le réglage complet d'un sac (ceinture, bretelles, rappels de charge). Toujours faire l'essai chargé.",
+      regle: "Un sac se vend réglé et chargé, jamais vide sur le présentoir." },
+    { cat: "Produit — Protection météo",
+      text: "Mon coupe-vent suffit, pas besoin d'une veste imperméable.",
+      accueil: "« Pour une averse courte, un coupe-vent peut suffire. Voyons dans quelles conditions vous marchez. »",
+      story: function(p, b) {
+        return "« " + b(['terrain','pratique','situation']) + "Imaginez : " + ins(p.terrain, "sur votre terrain ({}), ", "en pleine sortie, ") + "le temps tourne et la pluie s'installe pour une heure. Avec une veste réellement imperméable et respirante, vous restez au sec, sans transpirer à l'intérieur, et vous continuez à marcher sereinement. Si vos sorties restent courtes et par beau temps, votre coupe-vent suffira, et je vous le dirai. <strong>En quelle saison marchez-vous, et où ?</strong> »";
+      },
+      message: "« Coupe-vent et veste imperméable ne répondent pas au même besoin. Le choix dépend de la durée de vos sorties et de la météo que vous affrontez. »",
+      relance: "« Vous est-il déjà arrivé de rentrer trempé ? Dans quelles conditions ? »",
+      tip: "Savoir expliquer simplement imperméabilité et respirabilité, sans jargon. Adapter la recommandation au terrain et à la saison du client.",
+      regle: "Expliquer la différence de besoin, pas la différence de prix." },
+    { cat: "Décision — Report",
+      text: "Je vais réfléchir, je repasserai.",
+      accueil: "« Bien sûr. Pour que vous décidiez sereinement, dites-moi ce qu'il reste à clarifier. »",
+      story: function(p, b) {
+        return "« " + b(['pratique','terrain','priorite']) + "Imaginez-vous le matin de votre prochaine sortie" + ins(p.pratique, " ({})", "") + ", en train de préparer votre sac. Qu'est-ce qui vous ferait hésiter à ce moment-là ? Si c'est la taille, le confort ou le prix, on peut le vérifier maintenant, ensemble. Et si vous préférez repartir sans acheter, je vous note les références et les réglages trouvés. <strong>Qu'est-ce qui vous retient encore, précisément ?</strong> »";
+      },
+      message: "« Réfléchir, c'est sain. On décide mieux avec une réponse à son dernier doute. »",
+      relance: "« Qu'est-ce qui vous manquerait pour être sûr de votre choix ? »",
+      tip: "Chercher l'objection cachée derrière le report. Remettre une fiche récapitulative (modèle, taille, réglages) si le client repart sans acheter.",
+      regle: "Derrière « je vais réfléchir », chercher le doute précis, avec respect." }
+  ]
+},
+{
+  id: "auto", name: "Accessoires automobile",
+  title: "Le client n'achète pas un accessoire, il règle une gêne du quotidien.",
+  autrePh: "Ex : Mon garagiste me le fera moins cher.",
+  scene: function(p) { return "imaginez votre prochain trajet" + ins(p.usage, " ({})", "") + ""; },
+  fields: [
+    { k: "vehicule", label: "Véhicule", ph: "Ex : citadine de 2019, SUV familial", bridge: "de votre véhicule" },
+    { k: "usage", label: "Usage du véhicule", ph: "Ex : trajets quotidiens, départs en vacances", bridge: "de votre usage" },
+    { k: "besoin", label: "Besoin exprimé", ph: "Ex : porte-vélos, siège enfant", bridge: "de votre besoin" },
+    { k: "priorite", ph: "Ex : sécurité, prix, facilité de montage" },
+    { k: "situation", ph: "Ex : départ en vacances dans 10 jours" }
+  ],
+  objections: [
+    { cat: "Concurrence — Achat en ligne",
+      text: "Je trouverai moins cher sur Internet.",
+      accueil: "« Vous avez raison de comparer. Vérifions surtout que ce que vous achèteriez est compatible avec votre véhicule. »",
+      story: function(p, b) {
+        return "« " + b(['vehicule','besoin','priorite']) + "Imaginez les deux cas. En ligne, vous commandez, vous recevez, et c'est au moment de l'installer" + ins(p.vehicule, " sur votre véhicule ({})", "") + " que vous découvrez si la fixation correspond. Ici, on vérifie la compatibilité maintenant, et on peut vous montrer le montage. Vous repartez avec un accessoire qui va sur votre voiture du premier coup. <strong>Vérifions la compatibilité ensemble, puis comparons les prix.</strong> »";
+      },
+      message: "« En accessoire automobile, le vrai risque n'est pas le prix, c'est la compatibilité. Ici, elle est vérifiée avant l'achat. »",
+      relance: "« Avez-vous la marque, le modèle et l'année de votre véhicule ? On vérifie tout de suite. »",
+      tip: "Maîtriser les outils de compatibilité (références constructeur, carte grise) et proposer le montage ou une démonstration quand c'est possible.",
+      regle: "Vendre la compatibilité vérifiée, pas seulement l'accessoire." },
+    { cat: "Service — Montage",
+      text: "Je vais le monter moi-même, pas besoin de payer la pose.",
+      accueil: "« Si vous êtes à l'aise, c'est tout à fait possible. Je vais vous dire honnêtement ce que ça demande. »",
+      story: function(p, b) {
+        return "« " + b(['vehicule','besoin','situation']) + "Imaginez l'installation" + ins(p.besoin, " ({})", "") + " : vous avez les bons outils, le temps et la notice. Pour certains accessoires, c'est simple. Pour d'autres, une erreur de montage touche à votre sécurité et à celle de vos passagers. Je vous dis lequel des deux cas est le vôtre, et vous choisissez. <strong>Voulez-vous que je vous explique les étapes, pour décider ?</strong> »";
+      },
+      message: "« Certains accessoires se montent facilement, d'autres touchent à la sécurité. Dans ce cas, une pose professionnelle vous protège. »",
+      relance: "« Avez-vous déjà monté ce type d'accessoire ? Avec quels outils ? »",
+      tip: "Savoir distinguer les accessoires à montage simple de ceux qui engagent la sécurité (attelage, siège enfant, barres de toit chargées). Être transparent sur le temps et les outils nécessaires.",
+      regle: "Conseiller la pose quand la sécurité est en jeu, pas pour gonfler le panier." },
+    { cat: "Besoin — Utilité",
+      text: "C'est un gadget, je n'en ai pas vraiment besoin.",
+      accueil: "« Vous avez raison de vous poser la question. Un accessoire ne vaut que par l'usage que vous en ferez. »",
+      story: function(p, b) {
+        return "« " + b(['usage','besoin','vehicule']) + "Imaginez votre trajet habituel" + ins(p.usage, " ({})", "") + ". Qu'est-ce qui vous agace aujourd'hui ? Un téléphone qui glisse, un coffre en désordre, des sièges qui s'abîment ? Si cet accessoire règle l'un de ces points, il vous servira chaque jour. S'il n'en règle aucun, ne le prenez pas. <strong>Qu'est-ce qui vous gêne le plus dans votre voiture aujourd'hui ?</strong> »";
+      },
+      message: "« Un bon accessoire répond à une gêne réelle. Sans gêne, pas besoin d'accessoire. »",
+      relance: "« Et sur un long trajet ou en vacances, qu'est-ce qui vous manque ? »",
+      tip: "Partir des gênes du quotidien du client et ne recommander que les accessoires qui y répondent : un client bien conseillé revient.",
+      regle: "Pas de gêne, pas de vente." },
+    { cat: "Produit — Origine ou adaptable",
+      text: "L'accessoire de marque constructeur est trop cher, je prends l'adaptable.",
+      accueil: "« C'est un vrai choix, et l'adaptable peut très bien convenir. Voyons ce qui compte pour votre usage. »",
+      story: function(p, b) {
+        return "« " + b(['vehicule','usage','priorite']) + "Imaginez l'accessoire" + ins(p.vehicule, " sur votre véhicule ({})", "") + " dans un an. Selon la pièce, l'adaptable fait parfaitement l'affaire, ou bien l'ajustement, la finition et la garantie font la différence. Je vous montre les deux côte à côte, avec leurs garanties respectives, et c'est vous qui choisissez. <strong>On les compare sur ce qui compte pour vous ?</strong> »";
+      },
+      message: "« Adaptable ou d'origine : le bon choix dépend de la pièce, de l'ajustement attendu et de la garantie. Les deux peuvent être pertinents. »",
+      relance: "« Comptez-vous garder votre véhicule longtemps ? La garantie est-elle importante pour vous ? »",
+      tip: "Connaître les différences réelles (ajustement, matériaux, homologation, garantie) entre accessoires d'origine et adaptables. Ne jamais dénigrer une gamme vendue en magasin.",
+      regle: "Comparer sur des critères, jamais sur une étiquette de marque." },
+    { cat: "Sécurité — Siège enfant",
+      text: "Les sièges auto se valent tous, je prends le moins cher.",
+      accueil: "« Le prix compte, bien sûr, et tous les sièges vendus respectent une norme. Regardons ce qui les distingue pour votre voiture et votre enfant. »",
+      story: function(p, b) {
+        return "« " + b(['vehicule','besoin','situation']) + "Imaginez les trajets de tous les jours : vous installez l'enfant en quelques secondes, le siège est bien fixé" + ins(p.vehicule, " dans votre véhicule ({})", "") + ", la ceinture ou les points d'ancrage sont à la bonne place. Un siège mal adapté à la voiture ou mal installé protège moins bien, quel que soit son prix. <strong>On l'installe ensemble dans votre voiture avant que vous décidiez ?</strong> »";
+      },
+      message: "« Pour un siège enfant, le critère décisif est l'adaptation à l'enfant et au véhicule, puis une installation correcte. Le prix vient après. »",
+      relance: "« Quelle taille fait votre enfant ? Votre voiture dispose-t-elle de points d'ancrage Isofix ? »",
+      tip: "Connaître la norme en vigueur (R129 / i-Size) et savoir vérifier la compatibilité avec le véhicule. Proposer l'essai d'installation dans la voiture du client.",
+      regle: "La sécurité se vérifie dans la voiture du client, pas sur l'étiquette." },
+    { cat: "Délai — Départ imminent",
+      text: "Le délai de commande est trop long, j'en ai besoin pour partir en vacances.",
+      accueil: "« Je comprends, votre départ ne va pas attendre. Voyons ce qu'on peut faire dans votre calendrier. »",
+      story: function(p, b) {
+        return "« " + b(['situation','besoin','usage']) + "Imaginez le jour du départ : la voiture est chargée, et l'accessoire dont vous avez besoin" + ins(p.besoin, " ({})", "") + " est en place. Pour y arriver, trois possibilités : un modèle équivalent en stock, une commande avec une date de livraison confirmée avant votre départ, ou une solution provisoire. <strong>Donnez-moi votre date de départ, et regardons ce qui est réellement possible.</strong> »";
+      },
+      message: "« Quand le délai compte, on part de votre date et on cherche ce qui est disponible, pas l'inverse. »",
+      relance: "« Vous partez quand, exactement ? Et quel critère est non négociable sur cet accessoire ? »",
+      tip: "Connaître le stock du magasin et du réseau, ainsi que les délais fournisseurs réels. Ne jamais promettre une date non confirmée.",
+      regle: "Partir de la date du client, et ne promettre que ce qui est confirmé." }
+  ]
+}
+];
+
+/* ---------- Construction de l'interface ---------- */
+var tabsEl = document.getElementById('tabs');
+var panelsEl = document.getElementById('panels');
+
+SECTORS.forEach(function(s, i) {
+  var tab = document.createElement('button');
+  tab.className = 'tab'; tab.id = 'tab-' + s.id; tab.type = 'button';
+  tab.setAttribute('role', 'tab');
+  tab.setAttribute('aria-controls', 'panel-' + s.id);
+  tab.setAttribute('aria-selected', i === 0 ? 'true' : 'false');
+  tab.tabIndex = i === 0 ? 0 : -1;
+  tab.textContent = s.name;
+  tab.addEventListener('click', function() { selectTab(i); });
+  tabsEl.appendChild(tab);
+
+  var opts = s.objections.map(function(o, j) { return '<option value="' + j + '">' + esc(o.cat + ' — « ' + o.text + ' »') + '</option>'; }).join('');
+  var fields = s.fields.map(function(f) {
+    var label = f.label || COMMON_FIELDS[f.k].label;
+    return '<div><label for="' + s.id + '-' + f.k + '">' + label + '</label><input id="' + s.id + '-' + f.k + '" type="text" placeholder="' + esc(f.ph) + '" autocomplete="off"></div>';
+  }).join('');
+
+  var panel = document.createElement('section');
+  panel.className = 'panel'; panel.id = 'panel-' + s.id;
+  panel.setAttribute('role', 'tabpanel'); panel.setAttribute('aria-labelledby', 'tab-' + s.id);
+  panel.hidden = i !== 0;
+  panel.innerHTML =
+    '<header class="panel-head"><p class="surtitre">Secteur · ' + s.name + '</p><h2>' + s.title + '</h2></header>' +
+    '<div class="card">' +
+      '<p class="surtitre">Phase découverte</p>' +
+      '<h3>Ce que vous avez appris sur ce client.</h3>' +
+      '<p class="hint">Sélectionnez l’objection exprimée, notez ce que le client vous a confié (<strong>initiales uniquement, RGPD</strong>), puis générez son histoire.</p>' +
+      '<div class="grid">' +
+        '<div class="full"><label for="' + s.id + '-obj">Objection exprimée par le client</label><select id="' + s.id + '-obj"><option value="">Sélectionnez l’objection du client</option>' + opts + '<option value="autre">Autre objection (à compléter)</option></select></div>' +
+        '<div class="full autre-zone" hidden><label for="' + s.id + '-autre">L\u2019objection du client, avec ses mots</label><textarea id="' + s.id + '-autre" rows="2" placeholder="' + esc(s.autrePh) + '"></textarea></div>' +
+        '<div><label for="' + s.id + '-initiales">Initiales du client</label><input id="' + s.id + '-initiales" type="text" placeholder="Ex : M.D." autocomplete="off"></div>' +
+        fields +
+      '</div>' +
+      '<div class="actions"><button class="btn" type="button">Générer l’histoire du client</button><p class="status" role="status" aria-live="polite"></p></div>' +
+    '</div>' +
+    '<div class="result" hidden>' +
+      '<div class="objection"><p class="cat"></p><p class="txt"></p></div>' +
+      '<ol class="steps">' +
+        '<li class="step"><span class="letter" aria-hidden="true">A</span><div><p class="step-label">Accueil</p><div class="step-text" data-k="accueil"></div></div></li>' +
+        '<li class="step step-b"><span class="letter" aria-hidden="true">B</span><div><p class="step-label" data-k="story-label">Son histoire</p><div class="step-text" data-k="story"></div></div></li>' +
+        '<li class="step"><span class="letter" aria-hidden="true">C</span><div><p class="step-label">Message clé</p><div class="step-text" data-k="message"></div></div></li>' +
+        '<li class="step"><span class="letter" aria-hidden="true">D</span><div><p class="step-label">Relance</p><div class="step-text" data-k="relance"></div></div></li>' +
+      '</ol>' +
+      '<aside class="tip"><b>Point formateur</b><span data-k="tip"></span></aside>' +
+      '<p class="regle"><small>Règle d’or</small><span data-k="regle"></span></p>' +
+    '</div>';
+  panelsEl.appendChild(panel);
+
+  var sel = panel.querySelector('select');
+  sel.addEventListener('change', function() { showObjection(s, panel); });
+  panel.querySelector('.autre-zone textarea').addEventListener('input', function() { if (sel.value === 'autre') setObjText(panel, this.value); });
+  panel.querySelector('.btn').addEventListener('click', function() { generate(s, panel); });
+});
+
+var PLACEHOLDER = '<span class="placeholder">Notez ce que le client vous a confié dans la phase découverte, puis cliquez sur « Générer l’histoire du client ». L’histoire parle de lui, et de lui seul.</span>';
+
+function el(panel, k) { return panel.querySelector('[data-k="' + k + '"]'); }
+function setStatus(panel, txt, err) { var st = panel.querySelector('.status'); st.textContent = txt; st.classList.toggle('err', !!err); }
+
+var AUTRE = {
+  accueil: "« Je comprends que… [reformulez l'objection avec les mots du client]. Vous avez raison d'en parler maintenant. »",
+  message: "« … [le bénéfice clé qui répond à cette objection, en une phrase simple] »",
+  relance: "« … [une question ouverte qui fait avancer le client : quand, combien, qu'est-ce qui…] »",
+  tip: "Reformulez l'objection avec les mots exacts du client avant d'y répondre : il se sent entendu, et vous vérifiez que vous avez bien compris. Construisez ensuite la réponse à partir de la découverte, jamais d'un argumentaire standard.",
+  regle: "Une objection bien reformulée est déjà à moitié traitée."
+};
+var STEP_NAMES = { accueil: 'Accueil', message: 'Message clé', relance: 'Relance' };
+
+function setObjText(panel, t) {
+  t = String(t).trim().replace(/^[«"“\s]+|[»"”\s]+$/g, '');
+  panel.querySelector('.objection .txt').textContent = t ? nb('« ' + t + ' »') : 'Saisissez l\u2019objection du client dans la phase découverte.';
+}
+
+function showObjection(s, panel) {
+  var v = panel.querySelector('select').value;
+  var res = panel.querySelector('.result');
+  var zone = panel.querySelector('.autre-zone');
+  setStatus(panel, '');
+  zone.hidden = v !== 'autre';
+  if (v === '') { res.hidden = true; return; }
+  res.hidden = false;
+  if (v === 'autre') {
+    panel.querySelector('.objection .cat').textContent = 'Objection · Autre (à compléter)';
+    setObjText(panel, zone.querySelector('textarea').value);
+    ['accueil','message','relance'].forEach(function(k) {
+      el(panel, k).innerHTML = '<textarea class="zone" rows="3" aria-label="' + STEP_NAMES[k] + ' à compléter" placeholder="' + esc(nb(AUTRE[k])) + '"></textarea>';
+    });
+    el(panel, 'tip').textContent = nb(AUTRE.tip);
+    el(panel, 'regle').textContent = nb(AUTRE.regle);
+    zone.querySelector('textarea').focus();
+  } else {
+    var o = s.objections[+v];
+    panel.querySelector('.objection .cat').textContent = 'Objection · ' + o.cat;
+    setObjText(panel, o.text);
+    el(panel, 'accueil').textContent = nb(o.accueil);
+    el(panel, 'message').textContent = nb(o.message);
+    el(panel, 'relance').textContent = nb(o.relance);
+    el(panel, 'tip').textContent = nb(o.tip);
+    el(panel, 'regle').textContent = nb(o.regle);
+  }
+  el(panel, 'story-label').textContent = 'Son histoire';
+  el(panel, 'story').innerHTML = PLACEHOLDER;
+}
+
+function generate(s, panel) {
+  var v = panel.querySelector('select').value;
+  if (v === '') { setStatus(panel, 'Sélectionnez d\u2019abord l\u2019objection exprimée par le client.', true); panel.querySelector('select').focus(); return; }
+  var autreTxt = panel.querySelector('.autre-zone textarea').value.trim().replace(/^[«"“\s]+|[»"”\s]+$/g, '');
+  if (v === 'autre' && !autreTxt) { setStatus(panel, 'Saisissez l\u2019objection du client, avec ses mots.', true); panel.querySelector('.autre-zone textarea').focus(); return; }
+  var p = {};
+  s.fields.forEach(function(f) { p[f.k] = document.getElementById(s.id + '-' + f.k).value.trim(); });
+  var ini = document.getElementById(s.id + '-initiales').value.trim();
+  if (!s.fields.some(function(f) { return p[f.k]; })) {
+    setStatus(panel, 'Renseignez au moins un élément de découverte (hors initiales) pour personnaliser l\u2019histoire.', true); return;
+  }
+  var labels = {};
+  s.fields.forEach(function(f) { labels[f.k] = f.bridge || COMMON_BRIDGE[f.k]; });
+  var b = function(keys) {
+    var parts = keys.filter(function(k) { return p[k]; }).map(function(k) { return labels[k] + ' (' + esc(p[k]) + ')'; });
+    if (!parts.length) return '';
+    var list = parts.length === 1 ? parts[0] : parts.slice(0, -1).join(', ') + ' et ' + parts[parts.length - 1];
+    return 'Tout à l\u2019heure, vous m\u2019avez parlé ' + list + '. ';
+  };
+  var text;
+  if (v === 'autre') {
+    // Histoire générique : pont découverte (tous les champs) + reformulation + projection propre au secteur
+    text = '« ' + b(s.fields.map(function(f) { return f.k; })) + 'Et vous venez de me dire : ' + q(autreTxt) + '. C\u2019est important, et je ne vais pas l\u2019écarter. Projetons-nous : ' + s.scene(p) + ', et ce point est réglé pour vous. Qu\u2019est-ce qui aurait changé ? <strong>Regardons ensemble ce qui répondrait précisément à ce point.</strong> »';
+  } else {
+    text = s.objections[+v].story(p, b);
+  }
+  var story = el(panel, 'story');
+  story.innerHTML = '<p>' + nb(text) + '</p><p class="structure">Structure : 1. son histoire, avec ses propres mots — 2. son objection reformulée — 3. il se projette dans sa vie avec la solution — 4. invitation à passer à l\u2019action. Le client est le seul héros de l\u2019histoire.' + (v === 'autre' ? ' Objection libre : complétez l\u2019histoire avec un détail concret de sa situation, puis rédigez les étapes A, C et D.' : '') + '</p>';
+  story.classList.remove('reveal'); void story.offsetWidth; story.classList.add('reveal');
+  el(panel, 'story-label').textContent = 'Son histoire' + (ini ? ' · fiche ' + ini : '');
+  setStatus(panel, 'Histoire générée : voir l\u2019étape B ci-dessous.');
+  panel.querySelector('.step-b').scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'center' });
+}
+
+function selectTab(i) {
+  var tabs = tabsEl.querySelectorAll('.tab');
+  tabs.forEach(function(t, j) {
+    var on = j === i;
+    t.setAttribute('aria-selected', on ? 'true' : 'false');
+    t.tabIndex = on ? 0 : -1;
+    document.getElementById(t.getAttribute('aria-controls')).hidden = !on;
+  });
+  tabs[i].focus();
+  tabs[i].scrollIntoView({ block: 'nearest', inline: 'nearest' });
+}
+
+// Navigation clavier entre onglets (flèches, Début, Fin)
+tabsEl.addEventListener('keydown', function(e) {
+  var tabs = Array.prototype.slice.call(tabsEl.querySelectorAll('.tab'));
+  var i = tabs.indexOf(document.activeElement);
+  if (i < 0) return;
+  var n = null;
+  if (e.key === 'ArrowRight') n = (i + 1) % tabs.length;
+  if (e.key === 'ArrowLeft') n = (i - 1 + tabs.length) % tabs.length;
+  if (e.key === 'Home') n = 0;
+  if (e.key === 'End') n = tabs.length - 1;
+  if (n !== null) { e.preventDefault(); selectTab(n); }
+});
+</script>
+</body>
+</html>
