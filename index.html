@@ -40,7 +40,7 @@ h1 { font-family:var(--serif); font-weight:600; font-size:clamp(28px, 4.2vw, 40p
 .intro p.lead { margin-top:16px; max-width:62ch; color:var(--brun); }
 
 /* ONGLETS */
-.tabs { display:flex; gap:8px; overflow-x:auto; padding:4px 2px 12px; scrollbar-width:thin; }
+.tabs { display:flex; flex-wrap:wrap; gap:8px; padding:4px 2px 12px; }
 .tab { font-family:var(--ui); font-weight:600; font-size:15px; color:var(--vert); background:var(--blanc); border:1px solid var(--line); border-radius:999px; padding:10px 18px; cursor:pointer; white-space:nowrap; transition:background .15s, color .15s, border-color .15s; }
 .tab:hover { border-color:var(--sauge); }
 .tab[aria-selected="true"] { background:var(--vert); border-color:var(--vert); color:var(--sur-vert); }
@@ -110,7 +110,6 @@ footer p + p { margin-top:6px; }
   .letter { font-size:24px; }
   .step-b { padding:20px 14px 20px 10px; }
   .top-meta { display:none; }
-  .tabs { flex-wrap:wrap; overflow-x:visible; }
   .tab { padding:9px 14px; font-size:14px; }
 }
 </style>
@@ -532,6 +531,231 @@ var SECTORS = [
       relance: "« Vous partez quand, exactement ? Et quel critère est non négociable sur cet accessoire ? »",
       tip: "Connaître le stock du magasin et du réseau, ainsi que les délais fournisseurs réels. Ne jamais promettre une date non confirmée.",
       regle: "Partir de la date du client, et ne promettre que ce qui est confirmé." }
+  ]
+},
+{
+  id: "occ", name: "Vente d'occasion",
+  title: "Le client n'achète pas un objet usagé, il achète une bonne affaire en toute confiance.",
+  autrePh: "Ex : Je vais attendre de le trouver sur une appli entre particuliers.",
+  scene: function(p) { return "imaginez-vous chez vous avec cet objet" + ins(p.objet, " ({})", ""); },
+  fields: [
+    { k: "objet", label: "Objet recherché", ph: "Ex : chaîne hifi, smartphone, lave-linge, bague", bridge: "de l'objet que vous cherchez" },
+    { k: "usage", label: "Usage prévu", ph: "Ex : cadeau, remplacement, collection", bridge: "de l'usage prévu" },
+    { k: "budget", label: "Budget indiqué", ph: "Ex : 150 € maximum", bridge: "de votre budget" },
+    { k: "priorite", ph: "Ex : fiabilité, prix, écologie" },
+    { k: "situation", ph: "Ex : appareil tombé en panne, premier achat d'occasion" }
+  ],
+  objections: [
+    { cat: "Confiance — Fiabilité",
+      text: "Si c'est d'occasion, c'est qu'il y a un problème. Ça va tomber en panne.",
+      accueil: "« C'est une crainte légitime : on ne veut pas payer pour un objet qui lâche au bout d'un mois. Je vais vous montrer comment on le vérifie. »",
+      story: function(p, b) {
+        return "« " + b(['objet','usage','situation']) + "Imaginez votre achat" + ins(p.objet, " ({})", "") + " une fois chez vous : il a été contrôlé, testé et nettoyé avant d'arriver en rayon, et vous repartez avec vos garanties par écrit. S'il présente un défaut couvert, vous revenez ici, et on s'en occupe. Vous n'achetez pas un inconnu : vous achetez un objet qui a déjà fait ses preuves, vérifié par nous. <strong>Je vous montre les tests qu'il a passés ?</strong> »";
+      },
+      message: "« Acheté auprès d'un professionnel, un objet d'occasion est couvert par la garantie légale de conformité, et le cas échéant par notre garantie commerciale. »",
+      relance: "« Qu'est-ce qui vous rassurerait le plus : le voir fonctionner, connaître son historique, ou la garantie par écrit ? »",
+      tip: "Connaître la garantie légale de conformité applicable aux biens d'occasion vendus par un professionnel, et la garantie commerciale du magasin s'il en propose une. Faire fonctionner l'appareil devant le client.",
+      regle: "Rendre visible ce qui a été vérifié : tests, garantie, historique." },
+    { cat: "Prix — Comparaison avec le neuf",
+      text: "Pour quelques euros de plus, je m'achète du neuf.",
+      accueil: "« C'est une vraie question, et parfois vous avez raison. Comparons précisément. »",
+      story: function(p, b) {
+        return "« " + b(['objet','budget','priorite']) + "Imaginez les deux options côte à côte : " + ins(p.objet, "{} d'occasion ", "l'objet d'occasion ") + "et son équivalent neuf. Souvent, pour le même budget" + ins(p.budget, " ({})", "") + ", l'occasion vous donne accès à une gamme au-dessus, mieux fabriquée. Et si l'écart est vraiment faible, je vous le dirai, et vous choisirez le neuf en connaissance de cause. <strong>On compare les deux, gamme pour gamme ?</strong> »";
+      },
+      message: "« À budget égal, l'occasion permet souvent de viser une gamme supérieure. La bonne comparaison se fait à gamme égale, pas à prix égal. »",
+      relance: "« Quel modèle neuf avez-vous repéré ? On le compare avec ce que nous avons en rayon. »",
+      tip: "Connaître les prix neufs des produits équivalents et savoir expliquer l'écart de gamme. Accepter de conseiller le neuf quand l'écart est faible : la crédibilité fidélise.",
+      regle: "Comparer à gamme égale, et dire la vérité quand le neuf est plus intéressant." },
+    { cat: "Concurrence — Vente entre particuliers",
+      text: "Je trouve moins cher entre particuliers sur Internet.",
+      accueil: "« C'est vrai, les prix entre particuliers sont souvent plus bas. Regardons ce qui change pour vous. »",
+      story: function(p, b) {
+        return "« " + b(['objet','situation','priorite']) + "Imaginez les deux achats. Entre particuliers, vous prenez rendez-vous, vous testez rapidement sur place, vous payez, et si l'objet tombe en panne la semaine suivante, vos recours sont bien plus limités. Ici, l'objet est testé, nettoyé, garanti, et vous pouvez revenir. " + ins(p.situation, "Avec votre situation ({}), la ", "La ") + "tranquillité a aussi une valeur. <strong>Comparons les prix, garantie comprise.</strong> »";
+      },
+      message: "« Entre particuliers, le prix est bas mais les recours sont limités. Ici, vous payez aussi le contrôle, la garantie et la possibilité de revenir. »",
+      relance: "« Avez-vous déjà eu une mauvaise surprise en achetant entre particuliers ? »",
+      tip: "Savoir expliquer simplement la différence de protection entre un achat auprès d'un professionnel et un achat entre particuliers. Ne jamais dénigrer les plateformes.",
+      regle: "Vendre la tranquillité, pas seulement le prix." },
+    { cat: "Perception — Objet déjà utilisé",
+      text: "Je n'aime pas l'idée que ça ait appartenu à quelqu'un d'autre.",
+      accueil: "« Je comprends, c'est une réaction fréquente, surtout pour certains objets. Parlons de ce qui est fait avant la remise en vente. »",
+      story: function(p, b) {
+        return "« " + b(['objet','usage','priorite']) + "Imaginez que vous sachiez exactement ce que l'objet a vécu avant d'arriver ici : il a été nettoyé, contrôlé, remis en état si besoin. " + ins(p.usage, "Pour votre usage ({}), vous", "Vous") + " le prenez en main comme un objet prêt à servir, avec en plus l'idée qu'il a une seconde vie au lieu de finir en déchet. <strong>Voulez-vous le prendre en main pour juger de son état ?</strong> »";
+      },
+      message: "« Chaque objet est nettoyé et contrôlé avant d'être remis en vente. Et acheter d'occasion, c'est aussi donner une seconde vie à un objet. »",
+      relance: "« Qu'est-ce qui vous gêne le plus : l'état, l'hygiène, ou l'historique de l'objet ? »",
+      tip: "Connaître le processus de remise en état du magasin (nettoyage, contrôle, pièces changées) et savoir le décrire concrètement.",
+      regle: "Montrer l'état réel de l'objet plutôt que d'en parler." },
+    { cat: "Confiance — Authenticité d'un bijou",
+      text: "Comment je peux être sûr que ce bijou est authentique ?",
+      accueil: "« Vous avez tout à fait raison de poser la question : pour un objet de valeur, c'est la première chose à vérifier. »",
+      story: function(p, b) {
+        return "« " + b(['objet','usage','budget']) + "Imaginez le jour où vous offrez ou portez ce bijou" + ins(p.usage, " ({})", "") + " : vous savez d'où il vient, ce qui garantit sa composition, et vous avez un document qui l'atteste. Je vous montre le poinçon, les éléments d'expertise dont nous disposons et ce que précise la facture. <strong>Regardons ensemble ce qui prouve son authenticité.</strong> »";
+      },
+      message: "« Pour un objet de valeur, l'authenticité se prouve : poinçon, expertise, facture détaillée. Je vous montre chacun de ces éléments. »",
+      relance: "« Est-ce pour vous ou pour offrir ? Souhaitez-vous une facture détaillée ou un certificat ? »",
+      tip: "Connaître les poinçons de garantie des métaux précieux et les documents d'expertise disponibles. Ne jamais affirmer une authenticité qui n'est pas documentée.",
+      regle: "Prouver par un document, jamais par une promesse." },
+    { cat: "Décision — Report",
+      text: "Je vais réfléchir, je repasserai.",
+      accueil: "« Bien sûr, prenez le temps qu'il vous faut. Puis-je vous poser une dernière question ? »",
+      story: function(p, b) {
+        return "« " + b(['objet','budget','priorite']) + "Imaginez que vous repassiez dans quelques jours. En occasion, chaque objet est unique : celui-ci" + ins(p.objet, " ({})", "") + " peut avoir trouvé preneur entre-temps. Ce n'est pas une raison de vous presser, mais une raison de lever votre doute maintenant, si c'est possible. Qu'est-ce qui vous fait hésiter : l'état, le prix, la garantie ? <strong>Dites-le-moi, et on vérifie ensemble.</strong> »";
+      },
+      message: "« En occasion, chaque pièce est unique. Réfléchir est normal : le mieux est de lever votre dernier doute maintenant. »",
+      relance: "« Qu'est-ce qui vous manquerait pour être sûr de votre choix ? »",
+      tip: "Rappeler honnêtement que chaque pièce d'occasion est unique, sans inventer d'urgence. Proposer une mise de côté courte si le magasin le permet.",
+      regle: "Unique ne veut pas dire urgent : informer sans presser." }
+  ]
+},
+{
+  id: "boul", name: "Boulangerie-snacking",
+  title: "Le client n'achète pas un sandwich, il s'offre une vraie pause.",
+  autrePh: "Ex : Vous n'avez plus de pain aux céréales à cette heure-ci.",
+  scene: function(p) { return "imaginez votre prochaine pause" + ins(p.moment, " ({})", ""); },
+  fields: [
+    { k: "moment", label: "Moment d'achat", ph: "Ex : pause déjeuner, petit-déjeuner, goûter", bridge: "du moment de votre achat" },
+    { k: "pour", label: "Pour qui", ph: "Ex : pour soi, bureau de 6 personnes, enfants", bridge: "des personnes pour qui vous achetez" },
+    { k: "habitudes", label: "Habitudes", ph: "Ex : formule tous les midis, pain le week-end", bridge: "de vos habitudes" },
+    { k: "priorite", ph: "Ex : rapidité, prix, fait maison" },
+    { k: "situation", ph: "Ex : 20 minutes de pause, anniversaire samedi" }
+  ],
+  objections: [
+    { cat: "Prix — Formule déjeuner",
+      text: "Votre formule est plus chère que celle de la chaîne d'à côté.",
+      accueil: "« C'est possible, et vous avez raison de comparer. Regardons ce qu'il y a dans notre formule. »",
+      story: function(p, b) {
+        return "« " + b(['moment','habitudes','priorite']) + "Imaginez votre pause" + ins(p.moment, " ({})", "") + " : un pain de notre fournée du jour, une garniture préparée ici, un dessert maison. Vous mangez quelque chose de frais, qui tient au corps, et vous repartez de bonne humeur. Et si votre budget est serré, je vous montre la composition la plus avantageuse. <strong>Je vous prépare la formule qui vous convient ?</strong> »";
+      },
+      message: "« Notre formule est préparée ici, avec notre pain. Et il existe toujours une composition adaptée à votre budget. »",
+      relance: "« Vous passez souvent le midi ? Je vous montre les formules les plus avantageuses. »",
+      tip: "Connaître la composition et le prix de chaque formule, ainsi que les offres de fidélité du magasin. Mettre en avant le fait maison uniquement quand il est réel.",
+      regle: "Vendre le fait maison vérifiable, et toujours proposer une option dans le budget." },
+    { cat: "Temps — File d'attente",
+      text: "Il y a trop de monde, je n'ai pas le temps d'attendre.",
+      accueil: "« Je comprends, votre pause est courte. Je vais faire au plus vite. »",
+      story: function(p, b) {
+        return "« " + b(['moment','situation','habitudes']) + "Imaginez demain" + ins(p.situation, " ({})", "") + " : vous avez passé commande à l'avance, et elle vous attend au comptoir. Vous entrez, vous payez, vous repartez en deux minutes, et votre pause reste une vraie pause. <strong>Voulez-vous que je vous explique comment commander à l'avance ?</strong> »";
+      },
+      message: "« Pour gagner du temps, la commande à l'avance vous évite toute attente. »",
+      relance: "« À quelle heure passez-vous d'habitude ? Je vous dis quand il y a le moins de monde. »",
+      tip: "Connaître les heures de pointe et les solutions de commande à l'avance proposées par le magasin (téléphone, application, précommande). Ne proposer que ce qui existe réellement.",
+      regle: "Respecter le temps du client : lui proposer une solution, pas une excuse." },
+    { cat: "Composition — Équilibre",
+      text: "Les viennoiseries et les sandwichs, ce n'est pas assez équilibré pour moi.",
+      accueil: "« C'est une vraie attention, et vous avez raison d'y penser pour votre pause de tous les jours. »",
+      story: function(p, b) {
+        return "« " + b(['moment','habitudes','priorite']) + "Imaginez votre déjeuner" + ins(p.moment, " ({})", "") + " : une salade composée, un sandwich au pain complet avec des légumes, un fruit ou un laitage. Vous mangez sur le pouce sans renoncer à ce qui compte pour vous. <strong>Je vous montre les options les plus légères de la vitrine ?</strong> »";
+      },
+      message: "« Manger sur le pouce peut rester équilibré, en choisissant bien sa composition. »",
+      relance: "« Qu'aimez-vous manger le midi ? Je vous oriente vers la composition la plus adaptée. »",
+      tip: "Connaître la composition des produits et les informations allergènes obligatoires. Ne jamais faire d'allégation santé : parler de composition, pas de bienfaits.",
+      regle: "Parler de composition, jamais de promesses santé." },
+    { cat: "Vente additionnelle — Achat unique",
+      text: "Juste une baguette, merci.",
+      accueil: "« Très bien, voici votre baguette. Juste une idée, si vous le permettez. »",
+      story: function(p, b) {
+        return "« " + b(['pour','moment','habitudes']) + "Imaginez demain matin" + ins(p.pour, ", pour {}", "") + " : le petit-déjeuner ou le goûter est déjà prévu, avec quelques viennoiseries prises en même temps que votre pain. Pas besoin de ressortir. <strong>Je vous en ajoute pour demain matin ?</strong> »";
+      },
+      message: "« Je ne vous propose qu'une chose utile, pour vous éviter de ressortir. »",
+      relance: "« Et pour demain matin, vous avez ce qu'il faut ? »",
+      tip: "Proposer un seul produit complémentaire, au bon moment (midi : dessert ; soir : viennoiseries du lendemain). Accepter le refus avec le sourire.",
+      regle: "Une suggestion au bon moment vaut mieux que trois au hasard." },
+    { cat: "Commande — Gâteau d'anniversaire",
+      text: "Pour mon gâteau d'anniversaire, je vais plutôt le faire moi-même.",
+      accueil: "« C'est une belle idée, faire soi-même a beaucoup de valeur. Je peux vous dire ce que ça représente de nous le confier. »",
+      story: function(p, b) {
+        return "« " + b(['pour','situation','priorite']) + "Imaginez le jour J" + ins(p.situation, " ({})", "") + " : vous profitez de vos invités au lieu de passer la matinée en cuisine. Le gâteau arrive prêt, au bon nombre de parts" + ins(p.pour, ", pour {}", "") + ", décoré comme vous l'avez choisi. Et si vous tenez à le faire vous-même, vous aurez au moins un prix précis pour comparer. <strong>Pour combien de personnes, et pour quelle date ?</strong> »";
+      },
+      message: "« Nous confier le gâteau, c'est gagner du temps le jour J et être sûr du résultat. Je vous fais un devis précis. »",
+      relance: "« Pour combien de personnes, et quel parfum ferait plaisir ? »",
+      tip: "Connaître les délais de commande, les tailles et les prix des pâtisseries de fête. Toujours demander les allergies éventuelles des convives.",
+      regle: "Vendre le temps libéré le jour J." },
+    { cat: "Offre — Fin de journée",
+      text: "À cette heure-ci, il ne reste plus grand-chose.",
+      accueil: "« C'est vrai, en fin de journée le choix est plus réduit. Voyons ce qui peut vous convenir. »",
+      story: function(p, b) {
+        return "« " + b(['moment','habitudes','priorite']) + "Imaginez votre prochain passage" + ins(p.moment, " ({})", "") + " : votre pain préféré vous attend, parce que vous l'avez réservé. Et ce soir, je vous propose ce qui se rapproche le plus de ce que vous cherchiez. <strong>Voulez-vous que je vous mette votre pain de côté pour demain ?</strong> »";
+      },
+      message: "« En fin de journée, le choix se réduit : la réservation vous garantit votre produit préféré. »",
+      relance: "« Que cherchiez-vous exactement ? Je vous propose ce qui s'en rapproche le plus. »",
+      tip: "Proposer systématiquement la réservation aux clients du soir. Connaître les horaires de la dernière fournée.",
+      regle: "Transformer un produit manquant en réservation." }
+  ]
+},
+{
+  id: "charc", name: "Charcuterie",
+  title: "Le client n'achète pas quelques tranches, il compose un moment à partager.",
+  autrePh: "Ex : Votre charcuterie ne se conserve pas assez longtemps.",
+  scene: function(p) { return "imaginez le moment où vous servirez" + ins(p.occasion, " ({})", ""); },
+  fields: [
+    { k: "occasion", label: "Occasion", ph: "Ex : apéritif entre amis, repas de famille, pique-nique", bridge: "de l'occasion" },
+    { k: "convives", label: "Nombre de convives", ph: "Ex : 2 personnes, 10 invités", bridge: "du nombre de convives" },
+    { k: "habitudes", label: "Habitudes d'achat", ph: "Ex : jambon en barquette, saucisson", bridge: "de vos habitudes d'achat" },
+    { k: "priorite", ph: "Ex : goût, origine, budget" },
+    { k: "situation", ph: "Ex : reçoit samedi, peu de temps pour cuisiner" }
+  ],
+  objections: [
+    { cat: "Prix — Comparaison libre-service",
+      text: "C'est plus cher qu'en barquette au rayon libre-service.",
+      accueil: "« C'est vrai, et vous avez raison de le remarquer. Regardons ce que vous obtenez pour cette différence. »",
+      story: function(p, b) {
+        return "« " + b(['occasion','convives','priorite']) + "Imaginez le moment où vous servez" + ins(p.occasion, ", pour {}", "") + ". Chaque tranche est coupée à la demande, à l'épaisseur que vous voulez, dans la quantité exacte qu'il vous faut" + ins(p.convives, " ({})", "") + ". Rien de trop, rien de perdu. Et je peux vous dire d'où vient chaque produit. <strong>Je vous fais goûter avant de couper ?</strong> »";
+      },
+      message: "« À la coupe, vous achetez la juste quantité, à l'épaisseur voulue, avec un conseil. Vous payez ce que vous consommez. »",
+      relance: "« Pour combien de personnes ? Je vous indique la juste quantité. »",
+      tip: "Connaître les quantités conseillées par personne selon l'occasion, l'origine et le mode de fabrication de chaque produit. Proposer la dégustation dans le respect des règles d'hygiène.",
+      regle: "Vendre la juste quantité et l'origine, pas le prix au kilo." },
+    { cat: "Composition — Gras et sel",
+      text: "La charcuterie, c'est trop gras, j'essaie d'en manger moins.",
+      accueil: "« C'est une démarche que je comprends et que je respecte. Je ne vais pas vous pousser à en manger plus. »",
+      story: function(p, b) {
+        return "« " + b(['habitudes','occasion','priorite']) + "Imaginez que vous en mangiez moins souvent, mais mieux : quelques tranches choisies" + ins(p.occasion, ", pour {}", "") + ", plutôt qu'une barquette entamée qui traîne au réfrigérateur. Certains produits sont naturellement plus maigres que d'autres, et je peux vous les indiquer. <strong>Voulez-vous que je vous montre les produits les moins gras ?</strong> »";
+      },
+      message: "« Moins mais mieux : une petite quantité bien choisie, et des produits naturellement plus maigres que d'autres. »",
+      relance: "« Qu'aimez-vous particulièrement ? Je vous oriente vers la version la plus légère. »",
+      tip: "Connaître la composition des produits (matières grasses, sel) et les informations obligatoires. Ne jamais faire d'allégation santé ni contredire un choix alimentaire du client.",
+      regle: "Respecter le choix du client : moins, mais mieux." },
+    { cat: "Temps — Attente au comptoir",
+      text: "Je n'ai pas le temps d'attendre au comptoir, je prends en barquette.",
+      accueil: "« Je comprends, votre temps compte. Je vais faire vite. »",
+      story: function(p, b) {
+        return "« " + b(['situation','habitudes','occasion']) + "Imaginez votre prochain passage : vous avez commandé à l'avance, et votre commande est prête, coupée et emballée. Vous repartez en un instant, avec la qualité de la coupe. " + ins(p.situation, "Avec votre situation ({}), c'est", "C'est") + " le meilleur des deux mondes. <strong>Voulez-vous que je vous explique comment commander à l'avance ?</strong> »";
+      },
+      message: "« La commande à l'avance vous évite l'attente, sans renoncer à la coupe. »",
+      relance: "« Vous passez plutôt à quelle heure ? Je vous dis quand il y a le moins d'attente. »",
+      tip: "Connaître les solutions de commande à l'avance du magasin et les heures creuses. Ne proposer que ce qui existe réellement.",
+      regle: "Proposer une solution à l'attente, pas une excuse." },
+    { cat: "Conseil — Quantités pour recevoir",
+      text: "Je ne sais pas quelle quantité prendre pour mes invités.",
+      accueil: "« C'est justement mon rôle de vous aider sur ce point. On va calculer ensemble. »",
+      story: function(p, b) {
+        return "« " + b(['occasion','convives','situation']) + "Imaginez votre réception" + ins(p.occasion, " ({})", "") + " : " + ins(p.convives, "avec {}, ", "") + "chacun se sert sans que le plateau se vide trop vite, et il ne vous reste pas une montagne de restes le lendemain. Je vous compose un plateau varié, avec la bonne quantité par personne selon que c'est un apéritif ou un repas. <strong>Je vous prépare le plateau ?</strong> »";
+      },
+      message: "« La quantité se calcule par personne, selon l'occasion. Je vous compose un plateau varié, sans excès. »",
+      relance: "« C'est pour un apéritif ou un vrai repas ? Et pour combien de personnes ? »",
+      tip: "Connaître les repères de quantité par personne selon l'occasion et savoir composer un plateau varié. Demander les éventuels régimes alimentaires des convives.",
+      regle: "Calculer avec le client, pas à sa place." },
+    { cat: "Nouveauté — Habitude",
+      text: "Je prends toujours le même jambon, je ne veux pas changer.",
+      accueil: "« C'est très bien d'avoir ses habitudes, surtout quand on aime un produit. Je ne vais pas vous le retirer. »",
+      story: function(p, b) {
+        return "« " + b(['habitudes','occasion','convives']) + "Imaginez votre prochain repas" + ins(p.occasion, " ({})", "") + " : votre jambon habituel est là et, à côté, une tranche de découverte, proche de vos goûts" + ins(p.habitudes, " ({})", "") + ". Si elle vous plaît, vous aurez une nouvelle envie. Sinon, vous gardez votre valeur sûre. <strong>Je vous fais goûter une tranche ?</strong> »";
+      },
+      message: "« Garder sa valeur sûre et découvrir sans risque : une tranche suffit pour essayer. »",
+      relance: "« Qu'aimez-vous dans votre jambon habituel ? Je vous propose quelque chose dans le même esprit. »",
+      tip: "Partir des goûts du client pour proposer une découverte proche, en petite quantité. La dégustation reste l'argument le plus fort.",
+      regle: "Proposer un pas de côté, jamais un saut dans l'inconnu." },
+    { cat: "Conservation — Achat à l'avance",
+      text: "Ça ne va pas se conserver jusqu'à samedi.",
+      accueil: "« Vous avez raison d'y penser, la fraîcheur compte. Voyons comment faire. »",
+      story: function(p, b) {
+        return "« " + b(['situation','occasion','convives']) + "Imaginez samedi, au moment de servir" + ins(p.occasion, " ({})", "") + " : vos produits sont aussi bons qu'au comptoir, parce que vous les avez fait couper au bon moment, ou conservés comme je vous l'aurai indiqué. On peut aussi préparer votre commande pour que vous la retiriez au plus près de votre réception. <strong>Quel jour recevez-vous ? On organise la coupe en fonction.</strong> »";
+      },
+      message: "« Chaque produit a sa durée de conservation. On adapte le jour de la coupe à votre réception. »",
+      relance: "« Vous recevez quel jour ? Je vous propose de retirer votre commande au plus près. »",
+      tip: "Connaître la durée et les conditions de conservation de chaque produit après la coupe, et savoir organiser une commande à retirer.",
+      regle: "Adapter la coupe à la date du client." }
   ]
 }
 ];
